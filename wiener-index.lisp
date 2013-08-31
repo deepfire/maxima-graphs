@@ -40,7 +40,7 @@
 	   (return-from find-option (caddr o)))))
   default)
 
-(defmfun $floyd_warshall (g &rest options)
+(defun $floyd_warshall (g &rest options)
   (require-graph-or-digraph 1 'floyd_warshall g)
   (let* ((n (graph-order g))
 	 (m (make-array (list n n)))
@@ -132,7 +132,7 @@
 
     (values d prev)))
 
-(defmfun $johnson (g &rest options)
+(defun $johnson (g &rest options)
   (let* ((h ($copy_graph g))
 	 (n (graph-order g))
 	 (options (cons '((mlist simp)) options))
@@ -255,7 +255,7 @@
 
     wi))
 
-(defmfun $wiener_index (g &rest options)
+(defun $wiener_index (g &rest options)
   (require-graph 1 'wiener_index g)
   (unless ($is_connected g)
     ($error "`wiener_index': input graph is not connected"))

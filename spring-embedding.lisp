@@ -67,7 +67,7 @@
 		  (list x y z)
 		  (list x y)))))))
 
-(defmfun $spring_embedding (g depth fixed-vertices dimension continue)
+(defun $spring_embedding (g depth fixed-vertices dimension continue)
   (let ((*vertex-position* (make-hash-table))
 	(vertex-displacement (make-hash-table))
 	(*fixed-vertices* (cdr fixed-vertices))
