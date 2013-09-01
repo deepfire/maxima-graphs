@@ -1,3 +1,29 @@
+;;;
+;;;  GRAPHS - graph theory package for Maxima
+;;;
+;;;  Copyright (C) 2007 Andrej Vodopivec <andrej.vodopivec@gmail.com>
+;;;
+;;;  This program is free software; you can redistribute it and/or modify
+;;;  it under the terms of the GNU General Public License as published by
+;;;  the Free Software Foundation; either version 2 of the License, or	 
+;;;  (at your option) any later version. 
+;;;
+;;;  This program is distributed in the hope that it will be useful,
+;;;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;  GNU General Public License for more details.
+;;;
+;;;  You should have received a copy of the GNU General Public License
+;;;  along with this program; if not, write to the Free Software
+;;;  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+;;;
+(in-package :maxima-graphs)
+
+;; flags hardwiring:
+; $inflag:       false
+; $partswitch:   false
+; $sqrtdispflag: false
+
 ;; comm.lisp
 (defun $append (&rest args)
   (if (null args)
@@ -27,9 +53,7 @@
 	   ((minusp n)
 	    (setq n (- n) revp t)))
      (if (< (length (margs m)) n)
-	 (if $partswitch
-	     (return '$end)
-	     (merror "rest: fell off the end.")))
+	 (merror "rest: fell off the end."))
      (setq fun (car m))
      (when (eq (car fun) 'mqapply)
        (setq fun1 (cadr m)
@@ -56,16 +80,16 @@
 
 (defun $length (e)
   (setq e (cond (($listp e) e)
-		((or $inflag (not ($ratp e))) (specrepcheck e))
+		((not ($ratp e)) (specrepcheck e))
 		(t ($ratdisrep e))))
   (cond ((symbolp e) (merror "length: argument cannot be a symbol; found ~:M" e))
 	((or (numberp e) (eq (caar e) 'bigfloat))
-	 (if (and (not $inflag) (mnegp e))
+	 (if (mnegp e)
 	     1
 	     (merror "length: argument cannot be a number; found ~:M" e)))
-	((or $inflag (not (member (caar e) '(mtimes mexpt) :test #'eq))) (length (margs e)))
+	((not (member (caar e) '(mtimes mexpt) :test #'eq)) (length (margs e)))
 	((eq (caar e) 'mexpt)
-	 (if (and (alike1 (caddr e) '((rat simp) 1 2)) $sqrtdispflag) 1 2))
+	 2)
 	(t (length (cdr (nformat e))))))
 
 (defun $listp (x)
@@ -147,46 +171,17 @@
 	(t (recur-apply #'$float e))))
 
 ;; merror.lisp
-(defun fstringc (l)
-  (do ((sl nil) (s) (sb)
-       (se nil))
-      ((null l)
-       (setq sl (maknam sl))
-       (cons sl (nreverse se)))
-    (setq s (pop l))
-    (cond ((stringp s)
-	   (setq sb (mapcan #'(lambda (x)
-				(if (char= x #\~)
-				    (list x x)
-				    (list x)))
-			    (coerce s 'list))))
-	  (t
-	   (push s se)
-	   (setq sb (list #\~ #\M))))
-    (setq sl (nconc sl sb (if (null l) nil (list #\space))))))
-
 (defun $error (&rest l)
   "Signals a Maxima user error."
-  (apply #'merror (fstringc l)))
+  (apply #'error l))
 
 ;; simp.lisp
 (defun $abs (x)
-  (simplify (list '(mabs) x)))
+  (abs x))
 
 ;; mlisp.lisp
-(defun |''MAKE-FUN| (noun-name x)
-  (simplifya (list (ncons noun-name) (resimplify x)) t))
+(defun $sin (x)
+  (sin x))
 
-(macrolet ((|''MAKE| (fun noun)
-	     `(defmfun ,fun (x) (|''MAKE-FUN| ',noun x))))
-  (|''MAKE| $log %log)
-  (|''MAKE| $sin %sin) (|''MAKE| $cos %cos) (|''MAKE| $tan %tan)
-  (|''MAKE| $cot %cot) (|''MAKE| $sec %sec) (|''MAKE| $csc %csc)
-  (|''MAKE| $sinh %sinh) (|''MAKE| $cosh %cosh) (|''MAKE| $tanh %tanh)
-  (|''MAKE| $coth %coth) (|''MAKE| $sech %sech) (|''MAKE| $csch %csch)
-  (|''MAKE| $asin %asin) (|''MAKE| $acos %acos) (|''MAKE| $atan %atan)
-  (|''MAKE| $acot %acot) (|''MAKE| $asec %asec) (|''MAKE| $acsc %acsc)
-  (|''MAKE| $asinh %asinh) (|''MAKE| $acosh %acosh) (|''MAKE| $atanh %atanh)
-  (|''MAKE| $acoth %acoth) (|''MAKE| $asech %asech) (|''MAKE| $acsch %acsch)
-  (|''MAKE| $round %round) (|''MAKE| $truncate %truncate) (|''MAKE| $plog %plog)
-  (|''MAKE| $signum %signum) (|''MAKE| $gamma %gamma))
+(defun $cos (x)
+  (cos x))

@@ -7,6 +7,7 @@
   :serial t
   :components
   ((:file "packages")
+   (:file "maximal")
    (:file "graph-core")
    (:file "spring-embedding")
    (:file "isomorphism")
